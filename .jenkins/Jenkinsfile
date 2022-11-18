@@ -5,6 +5,7 @@ pipeline {
     buildDiscarder (logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
   } 
   parameters {
+    string(name: 'SERVERIP', defaultValue: '89.232.184.140', description: 'Enter desthost FQDN or IP')
     gitParameter  name: 'PIPELINE_BRANCH', 
       type: 'PT_BRANCH',
       branchFilter: '.*',
