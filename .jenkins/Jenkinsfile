@@ -6,6 +6,7 @@ pipeline {
   } 
   parameters {
     string(name: 'SERVERIP', defaultValue: '89.232.184.140', description: 'Enter desthost FQDN or IP')
+    password(name: 'PASSWORD', defaultValue: '', description: 'Enter password for deploumentuser' )
     gitParameter  name: 'PIPELINE_BRANCH', 
       type: 'PT_BRANCH',
       branchFilter: '.*',
@@ -51,10 +52,7 @@ pipeline {
         SERVERIP = "${SERVERIP}"
       }
       steps {
-        withCredentials([usernamePassword(credentialsId: 'PASSWORD', 
-                        passwordVariable: 'PASSWORD')]) {
         
-      
         powershell '''
         $msdeploy = "C:\\Program Files\\IIS\\Microsoft Web Deploy V3\\msdeploy.exe"
         [string[]]$msdeployArguments = @(
@@ -67,7 +65,7 @@ pipeline {
         & $msdeploy $msdeployArguments
 
         '''
-        }
+        
       }
 
     }
