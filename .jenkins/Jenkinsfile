@@ -52,7 +52,7 @@ pipeline {
       }
       steps {
         withCredentials([usernamePassword(credentialsId: 'PASSWORD', 
-                        passwordVariable: 'PASSWORD')])
+                        passwordVariable: 'PASSWORD')]) {
         
       
         powershell '''
@@ -67,6 +67,7 @@ pipeline {
         & $msdeploy $msdeployArguments
 
         '''
+        }
       }
 
     }
