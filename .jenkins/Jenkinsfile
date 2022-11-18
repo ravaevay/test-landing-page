@@ -18,6 +18,7 @@ pipeline {
 
       steps {
         git branch: 'master',
+        credentialsId: 'jenkinsrobo.onlyoffice.com',
         url: 'https://github.com/ONLYOFFICE/helm-charts.git'
       }
     }
