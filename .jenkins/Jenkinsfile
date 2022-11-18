@@ -51,6 +51,8 @@ pipeline {
         SERVERIP = "${SERVERIP}"
       }
       steps {
+        withCredentials([usernamePassword(credentialsId: 'PASSWORD', 
+                        passwordVariable: 'PASSWORD')])
         
       
         powershell '''
