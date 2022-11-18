@@ -14,7 +14,7 @@ pipeline {
 
   stages {
     stage('clone') {
-      when { branch 'master' }
+      //when { branch 'master' }
 
       steps {
         git branch: 'master',
@@ -23,7 +23,7 @@ pipeline {
       }
     }
     stage('push') {
-      when { branch 'master' }
+     // when { branch 'master' }
       steps {
         //withCredentials([usernamePassword(credentialsId: 'helm_pepo', 
         //                passwordVariable: 'password', 
