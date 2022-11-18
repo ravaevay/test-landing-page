@@ -48,9 +48,10 @@ pipeline {
       environment {
         
         SERVERIP = "${SERVERIP}"
-        PASSWORD = credentials('PASSWORD')
       }
       steps {
+        
+      
         powershell '''
         $msdeploy = "C:\\Program Files\\IIS\\Microsoft Web Deploy V3\\msdeploy.exe"
         [string[]]$msdeployArguments = @(
