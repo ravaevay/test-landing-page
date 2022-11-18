@@ -7,10 +7,10 @@ pipeline {
     disableConcurrentBuilds()
     buildDiscarder (logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
   } 
-  parameters {
+  //parameters {
    // string(name: 'login', defaultValue: '', description: 'Enter login')
    // password(name: 'password', defaultValue: '', description: 'Enter password' )
-  }
+  //}
 
   stages {
     stage('clone') {
