@@ -4,3 +4,65 @@ pipeline {
     disableConcurrentBuilds()
     buildDiscarder (logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
   } 
+  parameters {
+    gitParameter  name: 'PIPELINE_BRANCH', 
+      type: 'PT_BRANCH',
+      branchFilter: '.*',
+      listSize: '5',
+      defaultValue: '*/develop',
+      selectedValue: 'DEFAULT',
+      sortMode: 'ASCENDING_SMART',
+      description: 'Select branch name to pipeline'
+
+    gitParameter  name: 'BRANCH_SRC', 
+      type: 'PT_BRANCH',
+      useRepository: 'https://github.com/ravaevay/test-landing-page.git',
+      branchFilter: '.*',
+      listSize: '10',
+      defaultValue: '*/develop',
+      selectedValue: 'DEFAULT',
+      sortMode: 'ASCENDING_SMART',
+      description: 'Select branch name to build'
+  }
+
+  stages {
+    stage ('Clone repos') {
+      steps {
+        checkout([$class: 'GitSCM', 
+          branches: [[name: "${BRANCH_SRC}"]], 
+          doGenerateSubmoduleConfigurations: false, 
+          extensions: [[$class: 'CleanBeforeCheckout'], 
+                      [$class: 'SubmoduleOption', 
+                                disableSubmodules: false, 
+                                parentCredentials: false, 
+                                recursiveSubmodules: true, 
+                                reference: '', trackingSubmodules: false], 
+                      [$class: 'RelativeTargetDirectory', 
+                                relativeTargetDir: 'www']], 
+          gitTool: 'Default', submoduleCfg: [], 
+          userRemoteConfigs: [[credentialsId: 'ravaev_github_token', 
+            url: 'https://github.com/ravaevay/test-landing-page.git']]])
+      }
+    }
+    stage ('deploy') {
+      environment {
+        msdeploy = "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe"
+        SERVERIP = "${SERVERIP}"
+        PASSWORD = credentials('PASSWORD')
+      }
+      steps {
+        powershell '''
+
+        [string[]]$msdeployArguments = @(
+        "-verb:sync",
+        "-source:iisapp=$($env:WORKSPACE)",
+        "-dest:iisApp='app',computerName=$($env:SERVERIP),username=deploymentuser,password=$($env:PASSWORD),AuthType='NTLM'",
+        "-allowUntrusted"
+        )
+
+        & $msdeploy $msdeployArguments
+
+        '''
+      }
+
+    }
