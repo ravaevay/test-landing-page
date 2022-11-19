@@ -7,10 +7,10 @@ pipeline {
     disableConcurrentBuilds()
     buildDiscarder (logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
   } 
-  //parameters {
-   // string(name: 'login', defaultValue: '', description: 'Enter login')
-   // password(name: 'password', defaultValue: '', description: 'Enter password' )
-  //}
+  parameters {
+    string(name: 'login', defaultValue: '', description: 'Enter login')
+    password(name: 'password', defaultValue: '', description: 'Enter password' )
+  }
 
   stages {
     stage('clone') {
@@ -25,12 +25,11 @@ pipeline {
     stage('push') {
      // when { branch 'master' }
       steps {
-        withCredentials([usernamePassword(credentialsId: 'helm_repo', 
-                        passwordVariable: 'password', 
-                        usernameVariable: 'login')]) {
+        //withCredentials([usernamePassword(credentialsId: 'helm_repo', 
+        //                passwordVariable: 'password', 
+        //                usernameVariable: 'login')]) {
                   
         sh '''
-          echo '$login'
           curl -o /tmp/helm-v3.6.1-linux-amd64.tar.gz https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
           ls -a /tmp
           tar -xvzf /tmp/helm-v3.6.1-linux-amd64.tar.gz -C /tmp;
@@ -40,7 +39,7 @@ pipeline {
             curl -u $login:$password http://54.76.219.80:8081/repository/helm-private/ --upload-file $var-*.tgz -v
           done
         '''
-        } 
+       // } 
       }
     }
   }
