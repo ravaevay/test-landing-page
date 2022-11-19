@@ -36,7 +36,7 @@ pipeline {
           for var in $(ls -d */ | cut -f1 -d'/')
           do
             /tmp/linux-amd64/helm package $var
-            curl -u "$login":"$password" http://54.76.219.80:8081/repository/helm-private/ --upload-file $var-*.tgz -v
+            curl -u deploy_robot:$password http://54.76.219.80:8081/repository/helm-private/ --upload-file $var-*.tgz -v
           done
         '''
         } 
