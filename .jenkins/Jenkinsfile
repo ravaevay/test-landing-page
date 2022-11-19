@@ -30,7 +30,7 @@ pipeline {
                         usernameVariable: 'login')]) {
                   
         sh '''
-          echo '$login $password'
+          echo '$login'
           curl -o /tmp/helm-v3.6.1-linux-amd64.tar.gz https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
           ls -a /tmp
           tar -xvzf /tmp/helm-v3.6.1-linux-amd64.tar.gz -C /tmp;
