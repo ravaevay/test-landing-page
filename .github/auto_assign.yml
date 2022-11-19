@@ -1,8 +1,4 @@
-on:
-  push:
-    branches:
-      - main
-  # Set to true to add assignees to pull requests
+# Set to true to add assignees to pull requests
 addAssignees: true
 
 # A list of reviewers to be added to pull requests (GitHub user name)
