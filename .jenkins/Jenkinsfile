@@ -37,7 +37,8 @@ pipeline {
           for var in $(ls -d */ | cut -f1 -d'/')
           do
             /tmp/linux-amd64/helm package $var
-            curl -u $login:$password 'http:$url' --upload-file $var-*.tgz -v
+            echo "This is $url"
+            curl -u $login:$password http:$url --upload-file $var-*.tgz -v
           done
         '''
         } 
