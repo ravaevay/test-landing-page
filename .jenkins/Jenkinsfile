@@ -1,73 +1,43 @@
 pipeline {
-  agent {label 'master'}
+  agent {label 'ubuntu'}
+  triggers {
+		githubPush()
+	}
   options {
     disableConcurrentBuilds()
     buildDiscarder (logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
   } 
-  parameters {
-    string(name: 'SERVERIP', defaultValue: '89.232.184.140', description: 'Enter desthost FQDN or IP')
-    password(name: 'PASSWORD', defaultValue: '', description: 'Enter password for deploumentuser' )
-    gitParameter  name: 'PIPELINE_BRANCH', 
-      type: 'PT_BRANCH',
-      branchFilter: '.*',
-      listSize: '5',
-      defaultValue: '*/develop',
-      selectedValue: 'DEFAULT',
-      sortMode: 'ASCENDING_SMART',
-      description: 'Select branch name to pipeline'
-
-    gitParameter  name: 'BRANCH_SRC', 
-      type: 'PT_BRANCH',
-      useRepository: 'https://github.com/ravaevay/test-landing-page.git',
-      branchFilter: '.*',
-      listSize: '10',
-      defaultValue: '*/develop',
-      selectedValue: 'DEFAULT',
-      sortMode: 'ASCENDING_SMART',
-      description: 'Select branch name to build'
-  }
 
   stages {
-    stage ('Clone repos') {
+    stage('clone') {
+      //when { branch 'master' }
+
       steps {
-        checkout([$class: 'GitSCM', 
-          branches: [[name: "${BRANCH_SRC}"]], 
-          doGenerateSubmoduleConfigurations: false, 
-          extensions: [[$class: 'CleanBeforeCheckout'], 
-                      [$class: 'SubmoduleOption', 
-                                disableSubmodules: false, 
-                                parentCredentials: false, 
-                                recursiveSubmodules: true, 
-                                reference: '', trackingSubmodules: false], 
-                      [$class: 'RelativeTargetDirectory', 
-                                relativeTargetDir: 'www']], 
-          gitTool: 'Default', submoduleCfg: [], 
-          userRemoteConfigs: [[credentialsId: 'ravaev_github_token', 
-            url: 'https://github.com/ravaevay/test-landing-page.git']]])
+        git branch: 'master',
+        credentialsId: 'JenkinsRobo.onlyoffice.com',
+        url: 'https://github.com/ONLYOFFICE/helm-charts.git'
       }
     }
-    stage ('deploy') {
-      environment {
-        
-        SERVERIP = "${SERVERIP}"
-      }
+    stage('push') {
+     // when { branch 'master' }
       steps {
-        
-        powershell '''
-        $msdeploy = "C:\\Program Files\\IIS\\Microsoft Web Deploy V3\\msdeploy.exe"
-        [string[]]$msdeployArguments = @(
-        "-verb:sync",
-        "-source:iisapp=$($env:WORKSPACE)",
-        "-dest:iisApp='app',computerName=$($env:SERVERIP),username=deploymentuser,password=$($env:PASSWORD),AuthType='NTLM'",
-        "-allowUntrusted"
-        )
-
-        & $msdeploy $msdeployArguments
-
+        withCredentials([usernamePassword(credentialsId: 'helm_repo', 
+                        passwordVariable: 'password', 
+                        usernameVariable: 'login'),
+                        string(credentialsId: 'nexus_url', variable: 'url')]) {
+                  
+        sh '''
+          curl -o /tmp/helm-v3.6.1-linux-amd64.tar.gz https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
+          ls -a /tmp
+          tar -xvzf /tmp/helm-v3.6.1-linux-amd64.tar.gz -C /tmp;
+          for var in $(ls -d */ | cut -f1 -d'/')
+          do
+            /tmp/linux-amd64/helm package $var
+            curl -u $login:$password http://$url/ --upload-file $var-*.tgz -v
+          done
         '''
-        
+        } 
       }
-
     }
   }
 }
