@@ -38,7 +38,7 @@ pipeline {
           do
             /tmp/linux-amd64/helm package $var
             echo "This is $url"
-            curl -u $login:$password http:$url --upload-file $var-*.tgz -v
+            curl -u $login:$password http://$url --upload-file $var-*.tgz -v
           done
         '''
         } 
